@@ -78,7 +78,7 @@
     "processor": "FS026",
     "bootloader": "custom",
     "layouts": {
-        "LAYOUT_tkl_ansi": {
+        "LAYOUT_60_ansi": {
             "layout": [
                 {"matrix": [0, 0],  "x": 0,     "y": 0},
                 {"matrix": [1, 1],  "x": 1,     "y": 0},
