@@ -21,7 +21,7 @@
 /* Locking resynchronize hack */
 #define LOCKING_RESYNC_ENABLE
 
-#define FORCE_NKRO
+#define NKRO_DEFAULT_ON true
 
 #define MATRIX_UNSELECT_DRIVE_HIGH
 #define CORTEX_ENABLE_WFI_IDLE          FALSE
