@@ -59,3 +59,21 @@
 #define EECONFIG_KB_DATA_SIZE 1
 
 #define TRANSIENT_EEPROM_SIZE 4096
+
+#define MAX_NAME_LEN                (18)
+#define USER_BlE_ID                 (0X002D)
+#define USER_BlE1_NAME              "QK61-1"
+#define USER_BlE2_NAME              "QK61-2"
+#define USER_BlE3_NAME              "QK61-3"
+
+#define KEYBOARD_COL                (16)
+#define KEYBOARD_ROL                (6)
+
+#define MATRIX_USER_COL_PINS        { D15, D14, C15, C14, C13, D3, D2, C12, C11, C10, A14, C9, C8, C7, C6, B15 }
+#define MATRIX_USER_ROW_PINS        { B0, B3, B4, B5, B6, B7 }
+
+#define WIN_COL                     (1)
+#define WIN_ROL                     (3)
+
+#define MAC_COL                     (2)
+#define MAC_ROL                     (3)

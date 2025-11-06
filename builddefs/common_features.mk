@@ -734,11 +734,6 @@ ifeq ($(strip $(FNV_ENABLE)), yes)
     SRC += qmk_fnv_type_validation.c hash_32a.c hash_64a.c
 endif
 
-# SRC += $(LIB_PATH)/rdr_lib/rdr_common.c
-LIB_NAME = rdrcommon
-LIBRARY = $(LIB_PATH)/rdr_lib/lib$(LIB_NAME).a
-LDFLAGS += -L$(LIB_PATH)/rdr_lib -l$(LIB_NAME)
-
 
 ifeq ($(strip $(LIB8TION_ENABLE)), yes)
     ifneq (,$(filter $(MCU), atmega16u2 atmega32u2 at90usb162))
