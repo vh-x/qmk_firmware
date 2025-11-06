@@ -91,13 +91,15 @@ void board_init(void) {
     User_Keyboard_Init();
 }
 
-void keyboard_post_init_user(void) {
+void keyboard_post_init_kb(void) {
     User_Keyboard_Post_Init();
+    keyboard_post_init_user();
 }
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     Usb_Change_Mode_Delay = 0;
     Usb_Change_Mode_Wakeup = false;
+    process_record_user(keycode, record);
 
     return Key_Value_Dispose(keycode, record);
 }
