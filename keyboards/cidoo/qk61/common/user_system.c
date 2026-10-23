@@ -189,6 +189,12 @@ void es_chibios_user_idle_loop_hook(void) {
 
     // Bt won't work with NKRO
     bool want_nkro = Keyboard_Info.Nkro && (Keyboard_Info.Key_Mode != QMK_BLE_MODE);
+#ifdef NKRO_OFF_IN_MAC_MODE
+    // Keep 6KRO while in Mac mode; the saved preference still applies in Windows mode
+    if (Keyboard_Info.Mac_Win_Mode == INIT_MAC_MODE) {
+        want_nkro = false;
+    }
+#endif
     if (keymap_config.nkro != want_nkro) {
         clear_keyboard();
         keymap_config.nkro = want_nkro;

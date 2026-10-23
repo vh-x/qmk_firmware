@@ -841,3 +841,47 @@ bool via_command_kb(uint8_t *data, uint8_t length) {
     return false;
 }
 #endif
+
+#ifdef OS_DETECTION_ENABLE
+#    include "os_detection.h"
+
+/* Mirror the Fn+A (Windows) / Fn+S (Mac) mode switch when the USB host OS is detected.
+ * Only acts in USB mode; wireless modes enumerate through the radio module. */
+bool process_detected_host_os_kb(os_variant_t detected_os) {
+    if (!process_detected_host_os_user(detected_os)) {
+        return false;
+    }
+    if (Keyboard_Info.Key_Mode != QMK_USB_MODE) {
+        return true;
+    }
+
+    uint8_t mode;
+    switch (detected_os) {
+        case OS_MACOS:
+        case OS_IOS:
+            mode = INIT_MAC_MODE;
+            break;
+        case OS_WINDOWS:
+        case OS_LINUX:
+            mode = INIT_WIN_MODE;
+            break;
+        default:
+            return true;
+    }
+
+    if (Keyboard_Info.Mac_Win_Mode != mode) {
+        Keyboard_Info.Mac_Win_Mode = mode;
+        if (mode == INIT_MAC_MODE) {
+            Keyboard_Info.Win_Lock = INIT_WIN_NLOCK;
+            Mac_Win_Point_Count = 3;
+            layer_move(1);
+        } else {
+            Mac_Win_Point_Count = 1;
+            layer_move(0);
+        }
+        unregister_code(KC_LALT); unregister_code(KC_LGUI); unregister_code(KC_RALT); unregister_code(KC_RGUI); unregister_code(KC_APP);
+        Save_Flash_Set();
+    }
+    return true;
+}
+#endif
