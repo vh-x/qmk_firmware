@@ -734,6 +734,7 @@ ifeq ($(strip $(FNV_ENABLE)), yes)
     SRC += qmk_fnv_type_validation.c hash_32a.c hash_64a.c
 endif
 
+
 ifeq ($(strip $(LIB8TION_ENABLE)), yes)
     ifneq (,$(filter $(MCU), atmega16u2 atmega32u2 at90usb162))
         # ATmegaxxU2 does not have hardware MUL instruction - lib8tion must be told to use software multiplication routines
