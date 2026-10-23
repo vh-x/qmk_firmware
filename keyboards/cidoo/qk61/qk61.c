@@ -20,6 +20,7 @@
 bool User_Key_Batt_Num_Show = false;
 uint8_t User_Key_Batt_Count = 0;
 bool Test_Led = false;
+bool Led_Point_Sleep = false;
 uint8_t Test_Colour = 0U;
 
 // QK61-specific LED indices
@@ -327,7 +328,23 @@ void User_Test_Colour_Show(void){
     rgb_matrix_driver_set_color_all(Test_R, Test_G, Test_B);
 }
 
+/* Port of the official V0102 User_Get_Led_Power_Status: apply the vendor LED on/off flag (Fn+RTOG) to the
+ * key LEDs, leaving the logo LEDs to Logo_Mode_Show, and flag when the whole LED rail may be powered down. */
+void User_Get_Led_Power_Status(void) {
+    bool keys_off = (Keyboard_Info.Led_On_Off == INIT_LED_OFF) || (rgb_matrix_get_val() == 0);
+    bool logo_off = (Keyboard_Info.Logo_On_Off == LOGO_LED_OFF) || (Keyboard_Info.Logo_Brightness == 0);
+    Led_Point_Sleep = keys_off && logo_off;
+    if (Keyboard_Info.Led_On_Off == INIT_LED_OFF) {
+        for (uint8_t i = 0; i < RGB_MATRIX_LED_COUNT; i++) {
+            if ((uint8_t)(i - Logo_Index_Tab[0]) >= LOGO_LED_SIZE) {
+                rgb_matrix_set_color(i, 0, 0, 0);
+            }
+        }
+    }
+}
+
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    User_Get_Led_Power_Status();
     if (User_Power_Low) {
         Led_Power_Low_Show();
     } else if (Test_Led) {
