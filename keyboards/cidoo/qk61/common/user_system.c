@@ -465,13 +465,33 @@ uint8_t Read_Mode_Switch_Position(void) {
         return MODE_SWITCH_2P4G;
     } else if (mode_2p4g && !mode_ble) {
         return MODE_SWITCH_BT;
-    } else if (mode_2p4g && mode_ble) {
-        return MODE_SWITCH_USB;
     }
 
-    // Default to current mode if reading is unclear
-    return Current_Mode_Switch_Position;
+    // Both pins equal (both high, or both low as the QK61 V2 switch does in its middle position):
+    // USB, exactly as the official V0102 firmware decodes it (Key_Switch_Mode_Scan / _Power)
+    return MODE_SWITCH_USB;
 }
+
+/* Port of the official V0102 power-on routine (Key_Switch_Mode_Power @0x4DA0): at boot the physical
+ * BT / USB / 2.4G switch overrides the saved Key_Mode, so the stored setting can never leave the board
+ * in a mode the switch does not select. Must run before the USB init / disconnect decision. */
+void Mode_Switch_Power_On_Sync(void) {
+    uint8_t target_mode;
+    switch (Read_Mode_Switch_Position()) {
+        case MODE_SWITCH_2P4G: target_mode = QMK_2P4G_MODE; break;
+        case MODE_SWITCH_BT:   target_mode = QMK_BLE_MODE;  break;
+        default:               target_mode = QMK_USB_MODE;  break;
+    }
+    if (Keyboard_Info.Key_Mode != target_mode) {
+        Keyboard_Info.Key_Mode = target_mode;
+        if (target_mode == QMK_BLE_MODE &&
+            (Keyboard_Info.Ble_Channel < QMK_BLE_CHANNEL_1 || Keyboard_Info.Ble_Channel > QMK_BLE_CHANNEL_3)) {
+            Keyboard_Info.Ble_Channel = QMK_BLE_CHANNEL_1;
+        }
+        Save_Flash_Set();
+    }
+}
+
 
 void Check_Mode_Switch_Changed(void) {
     uint8_t current_position = Read_Mode_Switch_Position();

@@ -29,4 +29,5 @@ extern void User_Wakeup(void);
 
 extern void Init_Gpio_Infomation(void);
 extern void Board_Wakeup_Init(void);
+extern void Mode_Switch_Power_On_Sync(void);
 extern void es_chibios_user_idle_loop_hook(void);
