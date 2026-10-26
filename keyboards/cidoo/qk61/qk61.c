@@ -106,6 +106,7 @@ void board_init(void) {
     rgb_matrix_driver_init();   // PWM DMA initialization
     Init_Gpio_Infomation();     // GPIO initialization
     Init_Keyboard_Infomation(); // Keyboard info initialization
+    Mode_Switch_Power_On_Sync(); // Physical switch position overrides the saved mode (official behaviour)
     Init_Batt_Infomation();     // Battery info initialization
     User_Systime_Init();        // System timer initialization
 
