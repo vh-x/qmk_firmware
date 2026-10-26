@@ -109,7 +109,7 @@ void rgb_matrix_driver_flush_pwm_dma_start(void) {
         return;
     }
 
-    if (rgblight_is_enabled()) {
+    if (rgblight_is_enabled() && !Led_Point_Sleep) {
         gpio_write_pin_high(ES_LED_POWER_IO);
         if (Led_Off_Start) {
             Led_Off_Start = false;

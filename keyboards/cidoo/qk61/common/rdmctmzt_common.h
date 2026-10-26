@@ -273,6 +273,7 @@ extern bool Keyboard_Reset;
 extern bool Init_Eeprom_Flg;
 extern bool Led_Off_Start;
 extern bool Led_Power_Up;
+extern bool Led_Point_Sleep;
 extern bool Usb_If_Ok_Led;
 extern uint16_t Led_Power_Up_Delay;
 extern uint8_t Temp_System_Led_Status;

@@ -20,6 +20,7 @@
 bool User_Key_Batt_Num_Show = false;
 uint8_t User_Key_Batt_Count = 0;
 bool Test_Led = false;
+bool Led_Point_Sleep = false;
 uint8_t Test_Colour = 0U;
 
 // QK61-specific LED indices
@@ -149,6 +150,7 @@ void keyboard_post_init_kb(void) {
 
 // LED display functions adapted from womier common
 void Led_Rf_Mode_Show(void) {
+    Led_Point_Sleep = false;
     uint8_t Temp_Colour = 0, Led_Index = 0;
     if (Keyboard_Info.Key_Mode == QMK_BLE_MODE) {
         if (Keyboard_Info.Ble_Channel == QMK_BLE_CHANNEL_1) {
@@ -200,6 +202,7 @@ void Led_Rf_Mode_Show(void) {
 }
 
 void Led_Power_Low_Show(void) {
+    Led_Point_Sleep = false;
     for (uint8_t i = 0; i < RGB_MATRIX_LED_COUNT; i++) {
         rgb_matrix_set_color(i, 0, 0, 0);
     }
@@ -216,6 +219,7 @@ void Led_Power_Low_Show(void) {
 }
 
 void Led_Point_Flash_Show(void) {
+    Led_Point_Sleep = false;
     if (Systick_Led_Count < 25) {
         if (Led_Point_Count) {
             // Regular LED point counting - light all LEDs
@@ -252,6 +256,7 @@ void Led_Point_Flash_Show(void) {
 }
 
 void Led_Batt_Number_Show(void) {
+    Led_Point_Sleep = false;
     if (es_stdby_pin_state == 1) {
         if (Batt_Led_Count >= 2) {
             Batt_Led_Count = 0;
@@ -304,18 +309,21 @@ void User_Point_Show(void){
         Systick_Led_Count = 0;
 
         if (host_keyboard_led_state().caps_lock) {
+            Led_Point_Sleep = false;
             rgb_matrix_set_color(LED_CAP_INDEX, U_PWM, U_PWM, U_PWM);
         } else {
             rgb_matrix_set_color(LED_CAP_INDEX, 0, 0, 0);
         }
 
         if (Keyboard_Info.Win_Lock) {
+            Led_Point_Sleep = false;
             rgb_matrix_set_color(LED_WIN_L_INDEX, U_PWM, U_PWM, U_PWM);
         }
     }
 }
 
 void User_Test_Colour_Show(void){
+    Led_Point_Sleep = false;
     uint8_t Test_R = 0, Test_G = 0, Test_B = 0;
     switch(Test_Colour) {
         case 0:  Test_R = RGB_MATRIX_MAXIMUM_BRIGHTNESS; Test_G = 0;                             Test_B = 0;                             break;
@@ -327,7 +335,25 @@ void User_Test_Colour_Show(void){
     rgb_matrix_driver_set_color_all(Test_R, Test_G, Test_B);
 }
 
+/* Port of the official V0102 User_Get_Led_Power_Status: apply the vendor LED on/off flag (Fn+RTOG)
+ * to the key LEDs, leaving the logo LEDs to Logo_Mode_Show, and mark the LED chain as asleep when
+ * keys and logo are both off. Every indicator routine clears Led_Point_Sleep again, as the official
+ * User_Led_Show does, so the LED rail is only cut while nothing needs showing. */
+void User_Get_Led_Power_Status(void) {
+    bool keys_off = (Keyboard_Info.Led_On_Off == INIT_LED_OFF) || (rgb_matrix_get_val() == 0);
+    bool logo_off = (Keyboard_Info.Logo_On_Off == LOGO_LED_OFF) || (Keyboard_Info.Logo_Brightness == 0);
+    Led_Point_Sleep = keys_off && logo_off;
+    if (Keyboard_Info.Led_On_Off == INIT_LED_OFF) {
+        for (uint8_t i = 0; i < RGB_MATRIX_LED_COUNT; i++) {
+            if ((uint8_t)(i - Logo_Index_Tab[0]) >= LOGO_LED_SIZE) {
+                rgb_matrix_set_color(i, 0, 0, 0);
+            }
+        }
+    }
+}
+
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    User_Get_Led_Power_Status();
     if (User_Power_Low) {
         Led_Power_Low_Show();
     } else if (Test_Led) {
@@ -344,6 +370,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 #endif
 
         if (Key_Fn_Status) {
+            Led_Point_Sleep = false;
             switch (Keyboard_Info.Key_Mode) {
                 case QMK_BLE_MODE: {
                     switch (Keyboard_Info.Ble_Channel) {
