@@ -130,6 +130,9 @@ void board_init(void) {
 }
 
 void keyboard_post_init_kb(void) {
+#if LOGO_LED_ENABLE
+    Logo_Init();    // blank the logo LEDs at boot, as the official firmware does
+#endif
     // NKRO is unreliable over Bluetooth, only honour the saved setting on USB and 2.4G
     if (Keyboard_Info.Key_Mode != QMK_BLE_MODE && keymap_config.nkro != Keyboard_Info.Nkro) {
         keymap_config.nkro = Keyboard_Info.Nkro;
@@ -809,3 +812,15 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
         default:    return true; // Process all other keycodes normally
     }
 }
+
+#ifdef VIA_ENABLE
+/* Vendor raw-HID command 0xBB: RF/EMI certification pass-through of the host packet to the radio
+ * module, as handled by the official V0102 firmware. Only active while Emi_Test_Start is set. */
+bool via_command_kb(uint8_t *data, uint8_t length) {
+    if (data[0] == 0xBB) {
+        Emi_Read_Data(data, length);
+        return true;
+    }
+    return false;
+}
+#endif

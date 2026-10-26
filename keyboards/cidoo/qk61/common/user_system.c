@@ -150,6 +150,9 @@ void Board_Wakeup_Init(void) {
     User_Adc_Init();            //ADC
 
     rgb_matrix_driver_init();   //PWM DMA
+#if LOGO_LED_ENABLE
+    Logo_Init();                //blank the logo LEDs on wake, as the official firmware does
+#endif
 
     Init_Gpio_Infomation();     //GPIO
 
@@ -292,7 +295,7 @@ void es_chibios_user_idle_loop_hook(void) {
 
     gpio_set_pin_input(ES_USB_POWER_IO);
 
-    /*B0 B3 B4 B6 B7 B1*/
+    /*B0 B3 B4 B6 B7 A1*/
     uint32_t Gpio_Enable = 0X000000DB;
     uint32_t Gpio_Status_H = 0X00000000;
     uint32_t Gpio_Status_L = 0X000000DB;
@@ -312,7 +315,8 @@ void es_chibios_user_idle_loop_hook(void) {
     GPIOB->AFL &= 0xFF0FFFFF;   //选择复用功能
     GPIOB->AFL |= 0x00300000;   //选择复用模式 NABLE:1 DISABLE:0
 
-    md_exti_set_interrupt_pin_0_7(EXTI, MD_EXTI_GPIOB0 | MD_EXTI_GPIOB1 | MD_EXTI_GPIOB3 | MD_EXTI_GPIOB4 | MD_EXTI_GPIOC5 | MD_EXTI_GPIOB6 | MD_EXTI_GPIOB7);
+    /* Line 1 selects PA1, as in the official QK61 V0102 firmware (PB1 came from the Womier Q61 port and is not a QK61 row pin) */
+    md_exti_set_interrupt_pin_0_7(EXTI, MD_EXTI_GPIOB0 | MD_EXTI_GPIOA1 | MD_EXTI_GPIOB3 | MD_EXTI_GPIOB4 | MD_EXTI_GPIOC5 | MD_EXTI_GPIOB6 | MD_EXTI_GPIOB7);
     //md_exti_set_interrupt_pin_8_15(EXTI, MD_EXTI_GPIOB10);
 
     md_exti_enable_it_gpio_pin(EXTI, Gpio_Enable);	                            /*0~7 , 10*/
