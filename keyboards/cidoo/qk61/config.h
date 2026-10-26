@@ -60,10 +60,12 @@
 #define TRANSIENT_EEPROM_SIZE 4096
 
 #define MAX_NAME_LEN                (18)
-#define USER_BlE_ID                 (0X002D)
-#define USER_BlE1_NAME              "QK61-1"
-#define USER_BlE2_NAME              "QK61-2"
-#define USER_BlE3_NAME              "QK61-3"
+/* The radio module stores the names and rewrites them only when this ID differs from the
+ * one it holds, so every change to the names below needs a new ID (factory V0102: 0x002D). */
+#define USER_BlE_ID                 (0X002E)
+#define USER_BlE1_NAME              "CIDOO QK61"
+#define USER_BlE2_NAME              "CIDOO QK61"
+#define USER_BlE3_NAME              "CIDOO QK61"
 
 #define KEYBOARD_COL                (16)
 #define KEYBOARD_ROL                (6)
