@@ -16,6 +16,20 @@
  */
 
 #include "common/rdmctmzt_common.h"
+#include "keycode_config.h"
+#ifdef OS_DETECTION_ENABLE
+#    include "os_detection.h"
+#endif
+
+static void qk61_set_alt_gui_swap(bool enabled) {
+    eeconfig_read_keymap(&keymap_config);
+    if (keymap_config.swap_lalt_lgui != enabled || keymap_config.swap_ralt_rgui != enabled) {
+        keymap_config.swap_lalt_lgui = enabled;
+        keymap_config.swap_ralt_rgui = enabled;
+        eeconfig_update_keymap(&keymap_config);
+        clear_keyboard();
+    }
+}
 
 bool User_Key_Batt_Num_Show = false;
 uint8_t User_Key_Batt_Count = 0;
@@ -88,6 +102,9 @@ void notify_usb_device_state_change_user(struct usb_device_state usb_device_stat
             case USB_DEVICE_STATE_NO_INIT:
             default:
                 Usb_If_Ok_Led = false;
+#ifdef OS_DETECTION_ENABLE
+                erase_wlength_data();
+#endif
                 break;
         }
     } else {
@@ -139,12 +156,6 @@ void keyboard_post_init_kb(void) {
         keymap_config.nkro = Keyboard_Info.Nkro;
     }
 
-    if (Keyboard_Info.Mac_Win_Mode) {
-        uint8_t current_layer = get_highest_layer(layer_state);
-        if (current_layer != 1) {
-            layer_on(1);
-        }
-    }
     keyboard_post_init_user();
 }
 
@@ -395,7 +406,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     Usb_Change_Mode_Wakeup = false;
 
     if (Test_Led) {
-        if ((keycode != KC_SPC) && (keycode != MO(2)) && (keycode != MO(3)) && (keycode != KC_LCTL)) {
+        if ((keycode != KC_SPC) && (keycode != MO(1)) && (keycode != KC_LCTL)) {
             Test_Led = false;
         }
     }
@@ -589,14 +600,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
                 }
             }
         } return true;
-        case MO(2): {                                               //FN
-            if (record->event.pressed) {
-                Key_Fn_Status = true;
-            } else {
-                Key_Fn_Status = false;
-            }
-        } return true;
-        case MO(3): {                                               //FN
+        case MO(1): {                                               //FN
             if (record->event.pressed) {
                 Key_Fn_Status = true;
             } else {
@@ -607,6 +611,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
             if (!record->event.pressed) {
                 if ((record->event.key.col == WIN_COL) && (record->event.key.row == WIN_ROL) && (Keyboard_Info.Mac_Win_Mode != INIT_WIN_MODE)) {
                     Keyboard_Info.Mac_Win_Mode = INIT_WIN_MODE;
+                    qk61_set_alt_gui_swap(false);
                     Mac_Win_Point_Count = 1;
                     unregister_code(KC_LALT); unregister_code(KC_LGUI); unregister_code(KC_RALT); unregister_code(KC_RGUI); unregister_code(KC_APP);
                     Save_Flash_Set();
@@ -617,6 +622,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
             if (!record->event.pressed) {
                 if ((record->event.key.col == MAC_COL) && (record->event.key.row == MAC_ROL) && (Keyboard_Info.Mac_Win_Mode != INIT_MAC_MODE)) {
                     Keyboard_Info.Mac_Win_Mode = INIT_MAC_MODE;
+                    qk61_set_alt_gui_swap(true);
                     Keyboard_Info.Win_Lock = INIT_WIN_NLOCK;
                     Mac_Win_Point_Count = 3;
                     unregister_code(KC_LALT); unregister_code(KC_LGUI); unregister_code(KC_RALT); unregister_code(KC_RGUI); unregister_code(KC_APP);
@@ -653,7 +659,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
         } return true;
         case EE_CLR: {
             if (record->event.pressed) {
-                Keyboard_Info.Nkro = INIT_ALL_KEY;
+                Keyboard_Info.Nkro = INIT_SIX_KEY;
                 Keyboard_Info.Mac_Win_Mode = INIT_WIN_MODE;
                 Keyboard_Info.Win_Lock = INIT_WIN_NLOCK;
                 Keyboard_Info.Led_On_Off = INIT_LED_ON_OFF;
@@ -821,16 +827,16 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
                 if (Keyboard_Info.Mac_Win_Mode == INIT_WIN_MODE) {
                     // Switch to Mac mode
                     Keyboard_Info.Mac_Win_Mode = INIT_MAC_MODE;
+                    qk61_set_alt_gui_swap(true);
                     Keyboard_Info.Win_Lock = INIT_WIN_NLOCK;  // Unlock Win key in Mac mode
                     Mac_Win_Point_Count = 3;  // Blink 3 times for Mac mode
-                    layer_on(1);  // Switch to Mac layer
                     unregister_code(KC_LALT); unregister_code(KC_LGUI); unregister_code(KC_RALT); unregister_code(KC_RGUI); unregister_code(KC_APP);
                     Save_Flash_Set();
                 } else {
                     // Switch to Windows mode
                     Keyboard_Info.Mac_Win_Mode = INIT_WIN_MODE;
+                    qk61_set_alt_gui_swap(false);
                     Mac_Win_Point_Count = 1;  // Blink 1 time for Windows mode
-                    layer_off(1);  // Switch to Windows layer (layer 0)
                     unregister_code(KC_LALT); unregister_code(KC_LGUI); unregister_code(KC_RALT); unregister_code(KC_RGUI); unregister_code(KC_APP);
                     Save_Flash_Set();
                 }
@@ -849,5 +855,47 @@ bool via_command_kb(uint8_t *data, uint8_t length) {
         return true;
     }
     return false;
+}
+#endif
+
+#ifdef OS_DETECTION_ENABLE
+/* Apply the detected host mode on every USB enumeration, overriding a manual AG_TOGG
+ * from the previous connection. Wireless modes keep the saved mode. */
+bool process_detected_host_os_kb(os_variant_t detected_os) {
+    if (!process_detected_host_os_user(detected_os)) {
+        return false;
+    }
+    if (Keyboard_Info.Key_Mode != QMK_USB_MODE) {
+        return true;
+    }
+
+    qk61_set_alt_gui_swap(detected_os == OS_MACOS || detected_os == OS_IOS);
+
+    uint8_t mode;
+    switch (detected_os) {
+        case OS_MACOS:
+        case OS_IOS:
+            mode = INIT_MAC_MODE;
+            break;
+        case OS_WINDOWS:
+        case OS_LINUX:
+            mode = INIT_WIN_MODE;
+            break;
+        default:
+            return true;
+    }
+
+    if (Keyboard_Info.Mac_Win_Mode != mode) {
+        Keyboard_Info.Mac_Win_Mode = mode;
+        if (mode == INIT_MAC_MODE) {
+            Keyboard_Info.Win_Lock = INIT_WIN_NLOCK;
+            Mac_Win_Point_Count = 3;
+        } else {
+            Mac_Win_Point_Count = 1;
+        }
+        unregister_code(KC_LALT); unregister_code(KC_LGUI); unregister_code(KC_RALT); unregister_code(KC_RGUI); unregister_code(KC_APP);
+        Save_Flash_Set();
+    }
+    return true;
 }
 #endif

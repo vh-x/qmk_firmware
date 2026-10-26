@@ -1,33 +1,33 @@
 # CIDOO QK61
 
-A customizable 61-key 60% wireless keyboard.
-
-* Hardware Supported: CIDOO QK61 PCB with ES32 FS026 microcontroller
-* Hardware Availability: CIDOO QK61
+A 61-key wireless keyboard with USB, three Bluetooth channels and 2.4 GHz. It uses an ES32 FS026 microcontroller.
 
 ## Building
 
-    qmk compile -kb qk61 -km default
+    qmk compile -kb cidoo/qk61 -km default
 
-See the [build environment setup](https://docs.qmk.fm/#/getting_started_build_tools) and the [make instructions](https://docs.qmk.fm/#/getting_started_make_guide) for more information. Brand new to QMK? Start with the [Complete Newbs Guide](https://docs.qmk.fm/#/newbs).
+The ChibiOS-Contrib submodule uses a fork with an ES32 USB enumeration fix required for macOS.
 
 ## Flashing
 
-Connect the keyboard while holding Esc. A mass storage drive appears; copy the firmware file to it.
+1. With the slider set to USB, unplug the keyboard, hold Esc and plug it in.
+2. Copy the compiled `.bin` file to the mass-storage drive that appears.
+3. Unplug and reconnect the keyboard after the drive disappears.
 
-You can also press `QK_BOOT`, if your keymap has it, or the reset button on the back of the PCB.
+Holding Esc invokes Bootmagic and erases EEPROM, including the VIA keymap and saved settings. Save your VIA layout first. `qmk flash` is not supported.
+
+## Keymap
+
+The default keymap uses USB OS detection to swap Alt and GUI for macOS and iOS. Fn+Z toggles the swap manually; detection reapplies it on the next USB connection.
+
+Fn+Q/W/E selects Bluetooth channels 1/2/3, Fn+R selects 2.4 GHz, and Fn+T selects USB. Hold a wireless mode key for three seconds to pair. The physical slider takes precedence at startup.
+
+6KRO is the default. NKRO can be enabled with Fn+N, but Bluetooth always uses 6KRO. Fn+Space displays the battery level, and Fn+Backslash toggles the key backlight while retaining indicators.
+
+All Bluetooth channels advertise as `CIDOO QK61`. To change the name, also change `USER_BlE_ID` in `config.h` so the radio module accepts it. A host may need to forget and pair the device again.
 
 ## VIA
 
-Keep `VIA_ENABLE = yes` in `rules.mk`. The board fails to initialize without it.
+Keep `VIA_ENABLE = yes`; the keyboard does not initialize without it. VIA requires USB. Enable **Show Design tab** in VIA and load `CIDOO QK61 VIA.JSON` from this directory. The key backlight is under **Backlight** and the three-LED bar is under **logo**.
 
-Build any keymap, then load `CIDOO QK61 VIA.JSON` in <https://usevia.app/> (enable **Show Design tab** first). VIA needs a USB connection — it does not work over 2.4 GHz or Bluetooth.
-
-## Lighting
-
-RGB Matrix drives 64 LEDs. The last three are the bar left of Esc, exposed to VIA under **logo**; the rest are under **Backlight**. Both have keycodes: `RM_*` and `LG_*`.
-
-## Notes
-
-* VIA offers both `UG_*` and `RM_*` keycodes because the definition declares `qmk_lighting` while the menus use both lighting channels. Only `RM_*` does anything.
-* [Upstreaming guide](https://docs.qmk.fm/newbs_git_using_your_master_branch)
+Vendor keycodes from 0x7E0A onward differ by one from the factory firmware. Reconfigure affected logo keys when importing a factory VIA layout.

@@ -498,7 +498,7 @@ void Init_Keyboard_Infomation(void) {
         Keyboard_Info.Key_Mode = INIT_WORK_MODE;
         Keyboard_Info.Ble_Channel = INIT_BLE_CHANNEL;
         Keyboard_Info.Batt_Number = INIT_BATT_NUMBER;
-        Keyboard_Info.Nkro = INIT_ALL_KEY;
+        Keyboard_Info.Nkro = INIT_SIX_KEY;
         Keyboard_Info.Mac_Win_Mode = INIT_WIN_MODE;
         Keyboard_Info.Win_Lock = INIT_WIN_NLOCK;
         Keyboard_Info.Led_On_Off = INIT_LED_ON_OFF;
@@ -515,7 +515,7 @@ void Init_Keyboard_Infomation(void) {
         Keyboard_Info.Key_Mode = INIT_WORK_MODE;
         Keyboard_Info.Ble_Channel = INIT_BLE_CHANNEL;
         Keyboard_Info.Batt_Number = INIT_BATT_NUMBER;
-        Keyboard_Info.Nkro = INIT_ALL_KEY;
+        Keyboard_Info.Nkro = INIT_SIX_KEY;
         Keyboard_Info.Mac_Win_Mode = INIT_WIN_MODE;
         Keyboard_Info.Win_Lock = INIT_WIN_NLOCK;
         Keyboard_Info.Led_On_Off = INIT_LED_ON_OFF;
@@ -542,7 +542,7 @@ void Init_Keyboard_Infomation(void) {
         }
 
         if (Keyboard_Info.Nkro > INIT_ALL_KEY) {
-            Keyboard_Info.Nkro = INIT_ALL_KEY;
+            Keyboard_Info.Nkro = INIT_SIX_KEY;
         }
 
         if (Keyboard_Info.Mac_Win_Mode > INIT_MAC_MODE) {
@@ -613,7 +613,7 @@ void User_Keyboard_Reset(void) {
         Keyboard_Info.Logo_Brightness = LOGO_MAX_BRIGHTNESS;
         Keyboard_Info.Logo_Speed = INIT_LOGO_SPEED;
         Keyboard_Info.Led_On_Off = INIT_LED_ON_OFF;
-        Keyboard_Info.Nkro = INIT_ALL_KEY;
+        Keyboard_Info.Nkro = INIT_SIX_KEY;
         Keyboard_Info.Mac_Win_Mode = INIT_WIN_MODE;
         Keyboard_Info.Win_Lock = INIT_WIN_NLOCK;
         Keyboard_Info.Logo_On_Off = INIT_LOGO_ON_OFF;

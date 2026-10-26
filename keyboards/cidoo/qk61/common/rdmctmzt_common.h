@@ -164,7 +164,7 @@ typedef enum {
 
 #define INIT_SIX_KEY                (0)
 #define INIT_ALL_KEY                (1)
-#define INIT_ALL_SIX_KEY            (INIT_ALL_KEY)
+#define INIT_ALL_SIX_KEY            (INIT_SIX_KEY)
 
 #define INIT_WIN_MODE               (0)
 #define INIT_MAC_MODE               (1)
