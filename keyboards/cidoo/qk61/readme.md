@@ -22,7 +22,7 @@ The default keymap uses USB OS detection to swap Alt and GUI for macOS and iOS. 
 
 Fn+Q/W/E selects Bluetooth channels 1/2/3, Fn+R selects 2.4 GHz, and Fn+T selects USB. Hold a wireless mode key for three seconds to pair. The physical slider takes precedence at startup.
 
-6KRO is the default. NKRO can be enabled with Fn+N, but Bluetooth always uses 6KRO. Fn+Space displays the battery level, and Fn+Backslash toggles the key backlight while retaining indicators.
+6KRO is the default. NKRO can be enabled with Fn+N, but Bluetooth always uses 6KRO. Fn+B displays the battery level. Fn+; and Fn+' adjust display brightness. Fn+Backslash toggles the key backlight while retaining indicators.
 
 All Bluetooth channels advertise as `CIDOO QK61`. To change the name, also change `USER_BlE_ID` in `config.h` so the radio module accepts it. A host may need to forget and pair the device again.
 
