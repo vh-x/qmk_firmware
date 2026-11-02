@@ -1,0 +1,47 @@
+name: CIDOO QK61
+
+on:
+  push:
+    branches: [qk61]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qk61-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: ghcr.io/qmk/qmk_cli
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          qmk compile -kb cidoo/qk61 -km default
+          qmk compile -kb cidoo/qk61 -km custom
+          cp keyboards/cidoo/qk61/cidoo_qk61_via.json .
+
+      - uses: actions/upload-artifact@v7
+        with:
+          path: cidoo_qk61_default.bin
+          archive: false
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v7
+        with:
+          path: cidoo_qk61_custom.bin
+          archive: false
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v7
+        with:
+          path: cidoo_qk61_via.json
+          archive: false
+          if-no-files-found: error
