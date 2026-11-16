@@ -73,7 +73,6 @@ static uint16_t Led_Power_Up_Delay = 0;
 uint8_t Temp_System_Led_Status = 0xff;
 static uint8_t Systick_6ms_Count = 0U;
 static uint8_t Systick_10ms_Count = 0x00;
-static uint8_t Systick_Ble_Count = 0x00;
 static uint16_t Systick_Interval_Count = 0x00;
 uint8_t Systick_Led_Count = 0x00;
 uint16_t Time_3s_Count = 0;
@@ -241,8 +240,7 @@ OSAL_IRQ_HANDLER(Vector78) {
     if (Keyboard_Info.Key_Mode != QMK_USB_MODE) {
         if (Keyboard_Status.System_Work_Status && (!Keyboard_Status.System_Sleep_Mode)) {
             Spi_Ack_Send_Commad(USER_KEYBOARD_SLEEP);
-        } else if ((Keyboard_Info.Key_Mode != QMK_BLE_MODE) || (++Systick_Ble_Count > 3)) {
-            Systick_Ble_Count = 0;
+        } else {
             Spi_Main_Loop();
         }
     }

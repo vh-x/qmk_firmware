@@ -320,16 +320,6 @@ void Get_Spi_Return_Data(uint8_t *Data) {
                     Ble_Name_Spi_Count = QMK_BLE_CHANNEL_1;
                 }
             }
-
-            uint32_t Sleep_Time = ((uint32_t)Data[11] << 24) | ((uint32_t)Data[12] << 16) | ((uint32_t)Data[13] << 8) | Data[14];
-            if (Sleep_Time != Keyboard_Info.Sleep_Time) {
-                Sleep_Time_Spi_Send = true;
-            }
-
-            uint32_t Spi_Cmd_16_Value = ((uint32_t)Data[15] << 24) | ((uint32_t)Data[16] << 16) | ((uint32_t)Data[17] << 8) | Data[18];
-            if (Spi_Cmd_16_Value != Keyboard_Info.Spi_Cmd_16_Value) {
-                Spi_Cmd_16_Spi_Send = true;
-            }
         } else if (Data[2] == USER_KEYBOARD_SLEEP) {
             if (Keyboard_Status.System_Work_Status && (Data[3] == USER_SLEEP_PASS)) {
                 if (Keyboard_Info.Key_Mode != QMK_USB_MODE) {
